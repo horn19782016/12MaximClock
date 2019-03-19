@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<head>
+     <title>钟表 2019年3月4日19点30分 by:逆火狂飙 horn19782016@163.com</title>
+    </head>
+
+     <body onload="draw()">
+        <canvas id="myCanvus" width="400px" height="400px" style="border:0px dashed black;">
+            出现文字表示你的浏览器不支持HTML5
+        </canvas>
+     </body>
+</html>
+<script type="text/javascript">
+<!--
+function draw(){
+	var canvas=document.getElementById('myCanvus');	
+	canvas.width=400;
+	canvas.height=400;	
+
+	context=canvas.getContext('2d');	
+	context.translate(200,200);
+	
+	clock=new Clock(200);	
+	clock.init();
+
+	animate();
+};
+
+
+var context;
+var clock;
+
+function animate(){	
+	context.clearRect(-200,-200,400,400);// 清屏
+	
+	clock.paintBg(context);
+	clock.paintScale(context);
+	clock.paintPointers(context);
+
+	if(true){
+		window.requestAnimationFrame(animate);
+	}
+}
+
+// 钟表类
+function Clock(radius){
+	this.radius=radius;
+	this.img;
+	
+	this.init=function(){
+		this.img=new Image();
+		this.img.src="bg.jpg";
+	}
+
+	// 画背景
+	this.paintBg=function(ctx){
+		ctx.drawImage(this.img,0,0,400,400,-200,-200,400,400);
+		ctx.fillStyle="red";
+		
+		var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
+		var BL = width / 200;
+		
+		var r=this.radius;
+		ctx.save();//保存一下最开始时钟的环境
+		ctx.beginPath();
+		ctx.lineWidth = 13.8 * BL;//线要 乘上 比例
+		ctx.arc(0, 0, r - ctx.lineWidth / 2, 2 * Math.PI, false);//乘上比例
+		ctx.strokeStyle = "#000080";
+		ctx.stroke();
+
+		ctx.fillStyle="white";
+		var hourNumber = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2];
+		ctx.font = 18 * BL + 'px Arial';//字体也有乘比例 字符串拼接
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+
+		hourNumber.forEach(function (number, i) {
+			var rad = 2 * Math.PI / 12 * i;
+			var x = Math.cos(rad) * (r - 30 * BL);
+			var y = Math.sin(rad) * (r - 30 * BL);
+			ctx.fillText(number, x, y);
+		});
+
+		for (var i = 0; i < 60; i++) {
+			var rad = 2 * Math.PI / 60 * i;
+			var x = Math.cos(rad) * (r - 18 * BL);
+			var y = Math.sin(rad) * (r - 18 * BL);
+			ctx.beginPath();
+			if (i % 5 == 0) {
+				ctx.fillStyle = '#800080';
+				ctx.arc(x, y, 2 * BL, 0, 2 * Math.PI, false);
+			} else {
+				ctx.fillStyle = '#c0c0c0';
+				ctx.arc(x, y, 2 * BL, 0, 2 * Math.PI, false);
+			}
+
+			ctx.fill();
+		}
+		
+		ctx.restore();
+	};
+
+	//  画汉字
+	this.paintScale=function(ctx){
+		var arr=["富强","民主","文明","和谐","自由","平等","公正","法治","爱国","敬业","诚信","友善"];
+		var offset=16;
+
+		ctx.save();
+		ctx.rotate(getRad(-94.5));
+
+		for(var i=0;i<60;i++){
+			var degree=i*6;
+			var x=(this.radius-offset)*Math.cos(getRad(degree));
+			var y=(this.radius-offset)*Math.sin(getRad(degree));
+
+			if((i % 5)==0){
+				ctx.save();	
+				
+				var x1=(this.radius-20)*Math.cos(getRad(degree));
+				var y1=(this.radius-20)*Math.sin(getRad(degree));
+
+				ctx.translate(x1,y1);
+				ctx.rotate(getRad(degree+96));
+				ctx.font="bold 16px 宋体";
+				ctx.fillStyle='white';
+				ctx.fillText(arr[i/5],0,0);
+
+				ctx.restore();
+			}	
+		}
+
+		ctx.restore();
+	};
+
+
+	// 画指针
+	this.paintPointers=function(ctx){
+		var date = new Date();
+		var hour=date.getHours();
+		var minute=date.getMinutes();
+		var second=date.getSeconds();
+
+		ctx.font="bold 12px 宋体";
+		ctx.fillStyle="white";
+		ctx.fillText(hour+":"+minute+":"+second,-20,-100);
+		
+		var angleS=second*6;
+		var angleM=minute*6;
+		var angleH=hour*30+angleM/360*30;
+
+		var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
+		var BL = width / 200;
+		
+		context.save();
+			context.rotate(getRad(-90));
+			var x,y;
+			
+			// 画时针
+			x=(this.radius-60)*Math.cos(getRad(angleH));
+			y=(this.radius-60)*Math.sin(getRad(angleH));
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 3 * BL;//定义指针的宽
+	        ctx.lineCap = 'round';//指针顶部为弧
+				
+			ctx.beginPath();
+	        ctx.moveTo(-x/8, -y/8);
+	        ctx.lineTo(x,y);
+	        ctx.stroke();
+	        ctx.closePath();
+			
+			// 画分针
+			x=(this.radius-45)*Math.cos(getRad(angleM));
+			y=(this.radius-45)*Math.sin(getRad(angleM));
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 2 * BL;//定义指针的宽
+	        ctx.lineCap = 'round';//指针顶部为弧
+			
+			ctx.beginPath();
+	        ctx.moveTo(-x/8, -y/8);
+	        ctx.lineTo(x,y);
+	        ctx.stroke();
+	        ctx.closePath();
+
+		context.restore();
+
+		// 画秒针
+		ctx.save();
+			ctx.lineWidth=0.5;
+
+			ctx.strokeStyle = "black";
+			ctx.beginPath();
+
+			var r=this.radius;
+			ctx.rotate(getRad(angleS));
+		    ctx.moveTo(-2 * BL, 20 * BL);//画出一个秒针 x轴-2 y轴20
+			ctx.lineTo(2 * BL, 20 * BL);
+			ctx.lineTo(1, -r + 18 * BL);
+			ctx.lineTo(-1, -r + 18 * BL);
+			ctx.fill();
+				
+	        ctx.stroke();
+	        ctx.closePath();
+		ctx.restore();
+	};
+}
+
+//  常规函数:角度得到弧度
+function getRad(degree){
+	return degree/180*Math.PI;
+}
+
+//  常规函数:得到颜色
+function getColor(index){
+    if(index==0){
+        return "green";
+    }else if(index==1){
+        return "silver";
+    }else if(index==2){
+        return "lime";
+    }else if(index==3){
+        return "gray";
+    }else if(index==4){
+        return "white";
+    }else if(index==5){
+        return "yellow";
+    }else if(index==6){
+        return "maroon";
+    }else if(index==7){
+        return "navy";
+    }else if(index==8){
+        return "red";
+    }else if(index==9){
+        return "blue";
+    }else if(index==10){
+        return "purple";
+    }else if(index==11){
+        return "teal";
+    }else if(index==12){
+        return "fuchsia";
+    }else if(index==13){
+        return "aqua";
+    }else if(index==14){
+        return "black";
+    }
+}
+
+//-->
+</script>
